@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/Users/user.dart';
 import 'dart:convert'; // For JSON encoding/decoding
 import 'package:http/http.dart' as http; // For API calls
 
@@ -11,9 +12,11 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'CRUD Example',
+      title: 'CRUD Operations Basics',
       theme: ThemeData(primarySwatch: Colors.blue),
+      // home: UserListScreen(),
       home: ItemListScreen(),
+      
     );
   }
 }
@@ -74,7 +77,11 @@ class _ItemListScreenState extends State<ItemListScreen> {
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
         setState(() {
-          items = data.map((item) => Item.fromJson(item)).toList();
+          items = data
+              .map((item) => Item.fromJson(item))
+              .toList()
+              .reversed
+              .toList();
           isLoading = false;
         });
       } else {
@@ -100,13 +107,16 @@ class _ItemListScreenState extends State<ItemListScreen> {
             Duration(seconds: 5),
             onTimeout: () => throw Exception('Connection timeout'),
           );
-      debugPrint('Delete response status: ${response.statusCode}');
-      if (response.statusCode == 200) {
+      int statusCode = response.statusCode;
+      debugPrint('Delete response status: $statusCode');
+      // 204 No Content is success for DELETE, as is 200
+      if (statusCode == 200 || statusCode == 204) {
         setState(() {
           items.removeWhere((item) => item.id == id);
         });
+        debugPrint('Item deleted successfully');
       } else {
-        throw Exception('Failed to delete item: ${response.statusCode}');
+        throw Exception('Failed to delete item: $statusCode');
       }
     } catch (e) {
       debugPrint('Error deleting item: $e');
