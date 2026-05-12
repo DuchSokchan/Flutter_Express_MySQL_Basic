@@ -57,13 +57,20 @@ class _ItemListScreenState extends State<ItemListScreen> {
 
   Future<void> fetchItems() async {
     const url =
-        'http://172.16.59.226:3000/products'; // Replace with your API URL
+        'http://192.168.162.1:3000/api/products'; // Replace with your API URL
     try {
       Map<String, String> requestHeaders = {
         'Content-Type': 'application/json; charset=UTF-8',
         'User-Agent': 'Flutter-App',
       };
-      final response = await http.get(Uri.parse(url), headers: requestHeaders);
+      final response = await http
+          .get(Uri.parse(url), headers: requestHeaders)
+          .timeout(
+            Duration(seconds: 5),
+            onTimeout: () => throw Exception('Connection timeout'),
+          );
+      debugPrint('Response status: ${response.statusCode}');
+      debugPrint('Response body: ${response.body}');
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
         setState(() {
@@ -71,7 +78,9 @@ class _ItemListScreenState extends State<ItemListScreen> {
           isLoading = false;
         });
       } else {
-        throw Exception('Failed to load items');
+        throw Exception(
+          'Failed to load items: ${response.statusCode} - ${response.body}',
+        );
       }
     } catch (e) {
       debugPrint('Error fetching items: $e');
@@ -83,15 +92,21 @@ class _ItemListScreenState extends State<ItemListScreen> {
 
   Future<void> deleteItem(String id) async {
     final url =
-        'http://172.16.59.226:3000/products/$id'; // Replace with your API URL
+        'http://192.168.162.1:3000/api/products/$id'; // Replace with your API URL
     try {
-      final response = await http.delete(Uri.parse(url));
+      final response = await http
+          .delete(Uri.parse(url))
+          .timeout(
+            Duration(seconds: 5),
+            onTimeout: () => throw Exception('Connection timeout'),
+          );
+      debugPrint('Delete response status: ${response.statusCode}');
       if (response.statusCode == 200) {
         setState(() {
           items.removeWhere((item) => item.id == id);
         });
       } else {
-        throw Exception('Failed to delete item');
+        throw Exception('Failed to delete item: ${response.statusCode}');
       }
     } catch (e) {
       debugPrint('Error deleting item: $e');
@@ -147,24 +162,41 @@ class AddItemScreen extends StatelessWidget {
 
   Future<void> addItem(BuildContext context) async {
     const url =
-        'http://172.16.59.226:3000/products'; // Replace with your API URL
+        'http://192.168.162.1:3000/api/products'; // Replace with your API URL
+
+    final requestBody = {
+      'name': titleController.text,
+      'price': double.tryParse(priceController.text) ?? 0.0,
+      'description': descriptionController.text,
+    };
+    debugPrint('Sending request to: $url');
+    debugPrint('Request body: ${json.encode(requestBody)}');
+
     try {
-      final response = await http.post(
-        Uri.parse(url),
-        body: json.encode({
-          'name': titleController.text,
-          'price': priceController.text,
-          'description': descriptionController.text,
-        }),
-        headers: {'Content-Type': 'application/json'},
-      );
+      final response = await http
+          .post(
+            Uri.parse(url),
+            body: json.encode(requestBody),
+            headers: {'Content-Type': 'application/json'},
+          )
+          .timeout(
+            Duration(seconds: 5),
+            onTimeout: () => throw Exception('Connection timeout'),
+          );
+      debugPrint('Response status: ${response.statusCode}');
+      debugPrint('Response body: ${response.body}');
       if (response.statusCode == 201) {
         Navigator.pop(context);
       } else {
-        throw Exception('Failed to add item');
+        throw Exception(
+          'Failed to add item: ${response.statusCode} - ${response.body}',
+        );
       }
     } catch (e) {
       debugPrint('Error adding item: $e');
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error: $e')));
     }
   }
 
@@ -213,26 +245,42 @@ class EditItemScreen extends StatelessWidget {
       descriptionController = TextEditingController(text: item.description);
 
   Future<void> updateItem(BuildContext context) async {
-    final url =
-        'http://172.16.59.226:3000/products/${item.id}'; // Replace with your API URL
+    final url = 'http://192.168.162.1:3000/api/products/${item.id}';
+
+    final requestBody = {
+      'name': titleController.text,
+      'price': double.tryParse(priceController.text) ?? 0.0,
+      'description': descriptionController.text,
+    };
+    debugPrint('Updating item at: $url');
+    debugPrint('Request body: ${json.encode(requestBody)}');
+
     try {
-      final response = await http.put(
-        Uri.parse(url),
-        body: json.encode({
-          'name': titleController.text,
-          'price': priceController.text,
-          'description': descriptionController.text,
-        }),
-        headers: {'Content-Type': 'application/json'},
-      );
+      final response = await http
+          .put(
+            Uri.parse(url),
+            body: json.encode(requestBody),
+            headers: {'Content-Type': 'application/json'},
+          )
+          .timeout(
+            Duration(seconds: 5),
+            onTimeout: () => throw Exception('Connection timeout'),
+          );
+      debugPrint('Update response status: ${response.statusCode}');
+      debugPrint('Update response body: ${response.body}');
       if (response.statusCode == 200) {
         debugPrint('Item updated successfully');
         Navigator.pop(context);
       } else {
-        throw Exception('Failed to update item');
+        throw Exception(
+          'Failed to update item: ${response.statusCode} - ${response.body}',
+        );
       }
     } catch (e) {
       debugPrint('Error updating item: $e');
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error: $e')));
     }
   }
 

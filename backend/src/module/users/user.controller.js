@@ -1,7 +1,7 @@
 // user controller
 import User from './user.model.js';
 // const validateUser = require('./user.validate');
-import userSchema from '../validation.js';
+import { userSchema } from '../validation.js';
 
 
 export const getUsers = async (req, res) => {
@@ -35,7 +35,7 @@ export const addUser = async (req, res) => {
     } catch (err) {
         if (err.code === 'ER_LOCK_WAIT_TIMEOUT') {
             return res.status(500).json({
-                error: 'Database is locked. Try again later.'
+                error: 'Database is locked. Try again later to restart the database connection.'
             });
         }
         console.error('Error adding user:', err);
@@ -78,7 +78,7 @@ export const updateUser = async (req, res) => {
     } catch (err) {
         if (err.code === 'ER_LOCK_WAIT_TIMEOUT') {
             return res.status(500).json({
-                error: 'Database is locked. Try again later.'
+                error: 'Database is locked. Try again later to restart the database connection.'
             });
         }
         console.error('Error updating user:', err);
@@ -97,7 +97,7 @@ export const deleteUser = async (req, res) => {
     } catch (err) {
         if (err.code === 'ER_LOCK_WAIT_TIMEOUT') {
             return res.status(500).json({
-                error: 'Database is locked. Try again later.'
+                error: 'Database is locked. Try again later to restart the database connection.'
             });
         }
         console.error('Error deleting user:', err);

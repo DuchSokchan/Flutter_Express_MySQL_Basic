@@ -1,5 +1,5 @@
 // Import the database connection
-import productSchema from "../validation.js";
+import { productSchema } from "../validation.js";
 import Product from "./product.model.js";
 // Get all products
 export const getProducts = async (req, res) => {
@@ -14,7 +14,7 @@ export const getProducts = async (req, res) => {
 
 // Add a new product
 export const addProduct = async (req, res) => {
-    const { name, description, price } = req.body;
+    const { name, price, description } = req.body;
 
     // Joi validation
     const { error } = productSchema.validate(

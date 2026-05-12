@@ -10,11 +10,6 @@ const userSchema = Joi.object({
     position: Joi.string().required(),
     salary: Joi.number().required()
 });
-const orderSchema = Joi.object({
-    userId: Joi.number().required(),
-    productId: Joi.number().required(),
-    quantity: Joi.number().required()
-});
 
 
-export default { productSchema, userSchema, orderSchema };
+export { productSchema, userSchema };
