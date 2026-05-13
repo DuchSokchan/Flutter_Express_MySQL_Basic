@@ -132,7 +132,9 @@ class _UserListScreenState extends State<UserListScreen> {
                 final user = users[index];
                 return ListTile(
                   title: Text(user.name),
-                  subtitle: Text(user.position + ' - \$${user.salary.toStringAsFixed(2)}'),
+                  subtitle: Text(
+                    user.position + ' - \$${user.salary.toStringAsFixed(2)}',
+                  ),
                   trailing: IconButton(
                     icon: Icon(Icons.delete, color: Colors.red),
                     onPressed: () => deleteItem(user.id),
